@@ -7,9 +7,6 @@ A modern task management application built with Next.js 15, TypeScript, and Tail
 - **Authentication Pages**: Sign In and Sign Up forms with validation using React Hook Form
 - **Task Management**: Home page with full CRUD operations for tasks
 - **Modern UI**: Clean, responsive design matching professional task management interfaces
-- **Sidebar Navigation**: Collapsible sidebar with project navigation
-- **Sprint Management**: Organize tasks into Backlog and Sprint sections
-- **User Profile**: Right sidebar showing user details and task statistics
 
 ## Tech Stack
 
@@ -53,10 +50,6 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ### Home (`/home`)
 - Full task management interface
 - Add, update, and delete tasks
-- Task organization by sprints
-- Collapsible sidebar navigation
-- User profile and statistics sidebar
-- Task details panel
 
 ## Available Scripts
 
