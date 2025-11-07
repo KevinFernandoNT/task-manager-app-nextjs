@@ -63,17 +63,29 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ```
 task-manager-app/
 ├── app/
-│   ├── page.tsx           # Landing page
+│   ├── components/
+│   │   ├── AppBranding.tsx    # Reusable auth branding component
+│   │   └── ConfirmModal.tsx   # Reusable confirmation modal
+│   ├── page.tsx               # Landing page
 │   ├── signin/
-│   │   └── page.tsx       # Sign In page
+│   │   └── page.tsx           # Sign In page
 │   ├── signup/
-│   │   └── page.tsx       # Sign Up page
+│   │   └── page.tsx           # Sign Up page
 │   ├── home/
-│   │   └── page.tsx       # Task management home
-│   ├── layout.tsx         # Root layout
-│   └── globals.css        # Global styles
-├── public/                # Static assets
-└── package.json           # Dependencies
+│   │   └── page.tsx           # Task management home
+│   ├── layout.tsx             # Root layout
+│   └── globals.css            # Global styles
+├── types/
+│   ├── signin/
+│   │   └── index.ts           # Sign in types
+│   ├── signup/
+│   │   └── index.ts           # Sign up types
+│   ├── home/
+│   │   └── index.ts           # Home page types
+│   └── components/
+│       └── index.ts           # Component types
+├── public/                    # Static assets
+└── package.json               # Dependencies
 ```
 
 ## Design Features

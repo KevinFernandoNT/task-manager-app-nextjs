@@ -3,16 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import ConfirmModal from '../components/ConfirmModal';
-
-type Task = {
-  id: number;
-  title: string;
-  completed: boolean;
-};
-
-type TaskFormData = {
-  title: string;
-};
+import { Task, TaskFormData } from '@/types/home';
 
 export default function Home() {
   const [showAddTaskForm, setShowAddTaskForm] = useState(false);

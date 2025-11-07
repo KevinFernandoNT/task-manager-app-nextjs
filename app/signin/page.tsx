@@ -3,11 +3,7 @@
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import AuthBranding from '../components/AppBranding';
-
-type SignInFormData = {
-  email: string;
-  password: string;
-};
+import { SignInFormData } from '@/types/signin';
 
 export default function SignIn() {
   const {
@@ -25,7 +21,7 @@ export default function SignIn() {
     <div className="flex min-h-screen">
       <AuthBranding />
 
-      {/* Right Side - Form */}
+      {/* Log in Form */}
       <div className="flex w-full lg:w-1/2 items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-md">
           <div className="mb-10">

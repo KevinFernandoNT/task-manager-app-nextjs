@@ -1,12 +1,4 @@
-type ConfirmModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-};
+import { ConfirmModalProps } from '@/types/components';
 
 export default function ConfirmModal({
   isOpen,
