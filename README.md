@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Manager App
+
+A modern task management application built with Next.js 15, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Authentication Pages**: Sign In and Sign Up forms with validation using React Hook Form
+- **Task Management**: Home page with full CRUD operations for tasks
+- **Modern UI**: Clean, responsive design matching professional task management interfaces
+- **Sidebar Navigation**: Collapsible sidebar with project navigation
+- **Sprint Management**: Organize tasks into Backlog and Sprint sections
+- **User Profile**: Right sidebar showing user details and task statistics
+
+## Tech Stack
+
+- **Next.js 15** (App Router)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS 4**
+- **React Hook Form** for form validation
+- **ESLint** for code quality
 
 ## Getting Started
 
-First, run the development server:
-
+1. **Install dependencies**:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Run the development server**:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Open your browser**:
+Navigate to [http://localhost:3000](http://localhost:3000)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Pages
 
-## Learn More
+### Landing Page (`/`)
+- Welcome page with links to Sign In, Sign Up, and Demo
 
-To learn more about Next.js, take a look at the following resources:
+### Sign In (`/signin`)
+- Email and password login form
+- Form validation with error messages
+- Link to Sign Up page
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Sign Up (`/signup`)
+- Registration form with name, email, password, and confirm password
+- Comprehensive form validation
+- Link to Sign In page
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Home (`/home`)
+- Full task management interface
+- Add, update, and delete tasks
+- Task organization by sprints
+- Collapsible sidebar navigation
+- User profile and statistics sidebar
+- Task details panel
 
-## Deploy on Vercel
+## Available Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+task-manager-app/
+├── app/
+│   ├── page.tsx           # Landing page
+│   ├── signin/
+│   │   └── page.tsx       # Sign In page
+│   ├── signup/
+│   │   └── page.tsx       # Sign Up page
+│   ├── home/
+│   │   └── page.tsx       # Task management home
+│   ├── layout.tsx         # Root layout
+│   └── globals.css        # Global styles
+├── public/                # Static assets
+└── package.json           # Dependencies
+```
+
+## Design Features
+
+- **Orange/Coral Accent Color** (#F97316) for primary actions
+- **Clean Typography** with proper hierarchy
+- **Responsive Layout** that works on all screen sizes
+- **Smooth Transitions** and hover effects
+- **Card-Based UI** for task items
+- **Avatar Placeholders** with gradient backgrounds
+- **Icons** using Heroicons (SVG)
+
+## Form Validation
+
+All forms use React Hook Form with the following validations:
+
+### Sign In
+- Email: Required, valid email format
+- Password: Required, minimum 6 characters
+
+### Sign Up
+- Name: Required, minimum 2 characters
+- Email: Required, valid email format
+- Password: Required, minimum 6 characters
+- Confirm Password: Required, must match password
+
+### Add Task
+- Title: Required
+- Column: Required
+- Time: Required
+
+## Future Enhancements
+
+- Backend integration with authentication
+- Database persistence for tasks
+- Real-time collaboration features
+- Drag-and-drop task reordering
+- File attachments
+- Comments and activity log
+- Calendar integration
+- Notifications system
+
+## License
+
+MIT
