@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import AuthBranding from '../components/AppBranding';
-import { SignInFormData } from '@/types/signin';
+import { SignInFormData } from '@/app/v1/types/signin';
 
 export default function SignIn() {
   const {
