@@ -79,7 +79,7 @@ export default function Home() {
   const handleLogout = () => {
     // Add logout logic here (e.g., clear session, redirect to login)
     console.log('Logging out...');
-    window.location.href = '/signin';
+    window.location.href = 'signin';
   };
 
   return (

@@ -1,20 +1,43 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
+import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import AuthBranding from '../components/AppBranding';
 import { SignInFormData } from '@/app/v1/types/signin';
+import { login } from './actions';
 
 export default function SignIn() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<SignInFormData>();
 
   const onSubmit = (data: SignInFormData) => {
-    console.log(data);
-    // Handle sign in logic here
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append('email', data.email);
+        formData.append('password', data.password);
+        const user = await login(formData);
+        toast.success(`Signed in successfully!, Welcome ${user.user_metadata?.name || data.email} `);
+        router.push('/v1/home');
+      } catch (error: any) {
+        let errorMessage = error?.message || 'An error occurred during sign in';
+
+        //mutate to a better UX friendly error message 
+        if(errorMessage.includes('Invalid login credentials')) {
+          errorMessage = "Incorrect email or password, Please check your credentials and try again";
+        }
+        toast.error(errorMessage);
+      }
+    });
   };
 
   return (
@@ -70,11 +93,15 @@ export default function SignIn() {
               )}
             </div>
 
+            {errors.root && (
+              <p className="text-sm text-red-600">{errors.root.message}</p>
+            )}
             <button
               type="submit"
-              className="w-full rounded-full bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 text-sm"
+              disabled={isPending}
+              className="w-full rounded-full bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign In
+              {isPending ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 

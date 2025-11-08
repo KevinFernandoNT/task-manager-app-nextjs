@@ -1,23 +1,46 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
+import { useTransition } from 'react';
+import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import AuthBranding from '../components/AppBranding';
 import { SignUpFormData } from '@/app/v1/types/signup';
+import { signup } from './actions';
+import { useRouter } from 'next/router';
 
 export default function SignUp() {
+  const router = useRouter();
+
+  const [isPending, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
+    setError,
   } = useForm<SignUpFormData>();
 
   const password = watch('password');
 
   const onSubmit = (data: SignUpFormData) => {
-    console.log(data);
-    // Handle sign up logic here
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append('email', data.email);
+        formData.append('password', data.password);
+        formData.append('name', data.name);
+        await signup(formData);
+        toast.success('Account created successfully!, Welcome');
+        router.push('/v1/home');
+      } catch (error: any) {
+        const errorMessage = error?.message || 'An error occurred during sign up';
+        toast.error(errorMessage);
+        setError('root', {
+          message: errorMessage,
+        });
+      }
+    });
   };
 
   return (
@@ -108,17 +131,21 @@ export default function SignUp() {
               )}
             </div>
 
+            {errors.root && (
+              <p className="text-sm text-red-600">{errors.root.message}</p>
+            )}
             <button
               type="submit"
-              className="w-full rounded-full bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+              disabled={isPending}
+              className="w-full rounded-full bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Let's Get Started!
+              {isPending ? 'Creating account...' : "Let's Get Started!"}
             </button>
           </form>
 
           <div className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="v1/signin" className="font-semibold text-orange-500 hover:text-orange-600">
+            <Link href="signin" className="font-semibold text-orange-500 hover:text-orange-600">
               Log in
             </Link>
           </div>
