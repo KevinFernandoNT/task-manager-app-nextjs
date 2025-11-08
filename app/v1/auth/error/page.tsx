@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import GuestOnlyComponent from '../../components/GuestOnlyComponent'
 
-export default function ErrorPage() {
+function ErrorPageContent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md text-center">
@@ -48,6 +49,14 @@ export default function ErrorPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ErrorPage() {
+  return (
+    <GuestOnlyComponent>
+      <ErrorPageContent />
+    </GuestOnlyComponent>
   )
 }
 

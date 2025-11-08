@@ -1,7 +1,7 @@
 export type Task = {
-  id: number;
+  id: string;
   title: string;
-  completed: boolean;
+  is_completed: boolean;
 };
 
 export type TaskFormData = {

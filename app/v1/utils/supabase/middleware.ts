@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function updateSession(request: NextRequest) {
 
   console.log("REQUEST  > >>", request.nextUrl.pathname)
+  
   let supabaseResponse = NextResponse.next({
     request,
   })

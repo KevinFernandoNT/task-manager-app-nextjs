@@ -1,42 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
+import AuthComponent from '../components/AuthComponent';
 import { Task, TaskFormData } from '@/app/v1/types/home';
+import { createSupbaseBrowserClient } from '../utils/supabase/client';
+import { useAuth } from '../hooks/useAuth';
+import { getTodos, addTodo, updateTodo, deleteTodo } from './actions';
+import toast from 'react-hot-toast';
 
-export default function Home() {
+function HomeContent() {
+  const router = useRouter();
+  const user = useAuth();
+  const [isPending, startTransition] = useTransition();
   const [showAddTaskForm, setShowAddTaskForm] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: 'Create an interactive prototype of the add-user script',
-      completed: false,
-    },
-    {
-      id: 2,
-      title: 'Implement the "Home Page" in the project',
-      completed: false,
-    },
-    {
-      id: 3,
-      title: 'Write a text for the Landing Page',
-      completed: true,
-    },
-    {
-      id: 4,
-      title: 'Wednesday meeting',
-      completed: false,
-    },
-    {
-      id: 5,
-      title: 'Identify the competitive advantages',
-      completed: false,
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const {
     register,
@@ -45,42 +30,107 @@ export default function Home() {
     formState: { errors },
   } = useForm<TaskFormData>();
 
-  const onAddTask = (data: TaskFormData) => {
-    const newTask: Task = {
-      id: Date.now(),
-      title: data.title,
-      completed: false,
+  // Fetch todos on mount
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        setLoading(true);
+        const todos = await getTodos();
+        setTasks(todos || []);
+      } catch (error: any) {
+        console.error('Error fetching todos:', error);
+        toast.error(error?.message || 'Failed to load tasks');
+      } finally {
+        setLoading(false);
+      }
     };
-    setTasks([...tasks, newTask]);
-    setShowAddTaskForm(false);
-    reset();
+
+    if (user) {
+      fetchTodos();
+    }
+  }, [user]);
+
+  const onAddTask = (data: TaskFormData) => {
+    startTransition(async () => {
+      try {
+        const newTask = await addTodo(data.title);
+        setTasks([newTask, ...tasks]);
+        setShowAddTaskForm(false);
+        reset();
+        toast.success('Task added successfully!');
+      } catch (error: any) {
+        console.error('Error adding todo:', error);
+        toast.error(error?.message || 'Failed to add task');
+      }
+    });
   };
 
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: string) => {
     setTaskToDelete(id);
     setShowDeleteModal(true);
   };
 
   const confirmDelete = () => {
     if (taskToDelete !== null) {
-      setTasks(tasks.filter((task) => task.id !== taskToDelete));
-      setTaskToDelete(null);
+      startTransition(async () => {
+        try {
+          await deleteTodo(taskToDelete);
+          setTasks(tasks.filter((task) => task.id !== taskToDelete));
+          setTaskToDelete(null);
+          toast.success('Task deleted successfully!');
+        } catch (error: any) {
+          console.error('Error deleting todo:', error);
+          toast.error(error?.message || 'Failed to delete task');
+        }
+      });
     }
   };
 
-  const toggleComplete = (id: number) => {
+  const toggleComplete = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+
+    const newCompleted = !task.is_completed;
+    
+    // Optimistic update
     setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
+      tasks.map((t) =>
+        t.id === id ? { ...t, is_completed: newCompleted } : t
       )
     );
+
+    startTransition(async () => {
+      try {
+        await updateTodo(id, newCompleted);
+        if (newCompleted) {
+          toast.success('Marked as complete!');
+        }
+      } catch (error: any) {
+        console.error('Error updating todo:', error);
+        // Revert on error
+        setTasks(
+          tasks.map((t) =>
+            t.id === id ? { ...t, is_completed: !newCompleted } : t
+          )
+        );
+        toast.error(error?.message || 'Failed to update task');
+      }
+    });
   };
 
-  const handleLogout = () => {
-    // Add logout logic here (e.g., clear session, redirect to login)
-    console.log('Logging out...');
-    window.location.href = 'signin';
+  const handleLogout = async () => {
+    try {
+      const supabase = createSupbaseBrowserClient();
+      await supabase.auth.signOut();
+      router.push('/v1/signin');
+    } catch (error: any) {
+      toast.error(error?.message ?? "Something went wrong")
+    }
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -90,8 +140,10 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>
           <div className="relative flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">John Doe</p>
-              <p className="text-xs text-gray-600">john.doe@example.com</p>
+              <p className="text-sm font-medium text-gray-900">
+                {user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}
+              </p>
+              <p className="text-xs text-gray-600">{user?.email || ''}</p>
             </div>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -110,8 +162,10 @@ export default function Home() {
                 {/* Dropdown */}
                 <div className="absolute right-0 top-full mt-2 z-20 w-56 rounded-lg border border-gray-200 bg-white shadow-lg">
                   <div className="p-4 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">John Doe</p>
-                    <p className="text-xs text-gray-600">john.doe@example.com</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-600">{user?.email || ''}</p>
                   </div>
                   <div className="py-2">
                     <button
@@ -172,9 +226,10 @@ export default function Home() {
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
+                  disabled={isPending}
+                  className="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add Task
+                  {isPending ? 'Adding...' : 'Add Task'}
                 </button>
                 <button
                   type="button"
@@ -192,8 +247,16 @@ export default function Home() {
         )}
 
         {/* Tasks List */}
-        <div className="space-y-3">
-          {tasks.map((task) => (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-orange-500 border-r-transparent"></div>
+              <p className="text-gray-600">Loading tasks...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {tasks.map((task) => (
             <div
               key={task.id}
               className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-300 hover:shadow-sm"
@@ -201,7 +264,7 @@ export default function Home() {
               {/* Complete Checkbox */}
               <input
                 type="checkbox"
-                checked={task.completed}
+                checked={task.is_completed}
                 onChange={() => toggleComplete(task.id)}
                 className="h-5 w-5 cursor-pointer rounded border-gray-300 text-orange-500 focus:ring-2 focus:ring-orange-500 focus:ring-offset-0"
               />
@@ -210,7 +273,7 @@ export default function Home() {
               <div className="flex-1">
                 <h3
                   className={`text-sm font-medium ${
-                    task.completed
+                    task.is_completed
                       ? 'text-gray-500 line-through'
                       : 'text-gray-900'
                   }`}
@@ -241,12 +304,36 @@ export default function Home() {
               </button>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Empty State */}
-        {tasks.length === 0 && (
-          <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-            <p className="text-gray-600">No tasks yet. Add your first task to get started!</p>
+        {!loading && tasks.length === 0 && (
+          <div className="rounded-lg border-2 border-dashed border-gray-300 p-16 text-center">
+            {/* Illustration */}
+            <div className="mb-6 flex justify-center">
+              <svg
+                className="h-48 w-48 text-gray-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                />
+              </svg>
+            </div>
+            
+            {/* Content */}
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">No tasks yet</h3>
+            <p className="mb-6 text-sm text-gray-400">
+              Get started by adding your first task. Stay organized and productive!
+            </p>
+            
+            
           </div>
         )}
       </div>
@@ -262,6 +349,14 @@ export default function Home() {
         cancelText="Cancel"
       />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <AuthComponent>
+      <HomeContent />
+    </AuthComponent>
   );
 }
 
