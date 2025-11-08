@@ -80,7 +80,7 @@ export default function SignIn() {
 
           <div className="mt-8 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold text-orange-500 hover:text-orange-600">
+            <Link href="/v1/signup" className="font-semibold text-orange-500 hover:text-orange-600">
               Sign up
             </Link>
           </div>

@@ -163,7 +163,7 @@ export default function Home() {
                   {...register('title', { required: 'Task title is required' })}
                   type="text"
                   placeholder="Enter task title"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 />
                 {errors.title && (
                   <p className="mt-1 text-xs text-red-600">{errors.title.message}</p>
