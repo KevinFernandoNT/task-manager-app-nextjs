@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '../utils/supabase/server'
+import { getAuthenticatedUser } from '../utils/supabase/auth'
 
 export async function getTodos() {
   const supabase = await createSupabaseServerClient()
@@ -20,13 +21,7 @@ export async function getTodos() {
 
 export async function addTodo(title: string) {
   const supabase = await createSupabaseServerClient()
-
-  // Get the current user
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    throw new Error('User not authenticated')
-  }
+  const user = await getAuthenticatedUser()
 
   const { data, error } = await supabase
     .from('todos')
