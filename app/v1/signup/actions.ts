@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache"
 import { createSupabaseServerClient } from "../utils/supabase"
-import { redirect } from 'next/navigation'
 
 
 export async function signup(formData: FormData) {

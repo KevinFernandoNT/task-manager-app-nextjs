@@ -1,4 +1,4 @@
-import { ConfirmModalProps } from '@/app/types/components';
+import { ConfirmModalProps } from '@/app/v1/types/home';
 
 export default function ConfirmModal({
   isOpen,
