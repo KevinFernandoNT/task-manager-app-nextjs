@@ -8,12 +8,16 @@ A modern task management application built with Next.js 15, TypeScript, and Tail
 
 ## Features
 
-- **Authentication Pages**: Sign In and Sign Up forms with validation using React Hook Form
-- **Task Management**: Home page with full CRUD operations for tasks
+- **Authentication**: Secure sign in and sign up with Supabase Auth
+- **Task Management**: Full CRUD operations for tasks with real-time database
+- **Protected Routes**: Automatic redirects for authenticated/unauthenticated users
+- **Row-Level Security**: Users can only access their own tasks
 - **Modern UI**: Clean, responsive design matching professional task management interfaces
+- **Form Validation**: Client-side validation using React Hook Form
 
 ## Tech Stack
 
+### Frontend
 - **Next.js 15** (App Router)
 - **React 19**
 - **TypeScript**
@@ -21,19 +25,69 @@ A modern task management application built with Next.js 15, TypeScript, and Tail
 - **React Hook Form** for form validation
 - **ESLint** for code quality
 
+### Backend
+- **Supabase** - Backend as a Service
+  - **Authentication**: User management and session handling
+  - **PostgreSQL Database**: Relational database for tasks
+  - **Row-Level Security (RLS)**: Database-level security policies
+  - **Server Actions**: Secure server-side operations
+
 ## Getting Started
 
-1. **Install dependencies**:
+### Prerequisites
+
+- Node.js 18+ installed
+- A Supabase account and project ([Sign up here](https://supabase.com))
+
+### Setup Instructions
+
+1. **Clone the repository**:
+```bash
+git clone <repository-url>
+cd task-manager-app
+```
+
+2. **Install dependencies**:
 ```bash
 npm install
 ```
 
-2. **Run the development server**:
+3. **Set up environment variables**:
+   - Create a `.env.local` file in the root directory
+   - Add your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+   - Get these values from your Supabase project dashboard: [Settings → API](https://supabase.com/dashboard/project/_/settings/api)
+
+4. **Set up Supabase Database**:
+   
+   **Option A: Using Migration Files (Recommended)**
+   
+   The project includes migration files in the `supabase/migrations/` directory. Run them using:
+   
+   - **Supabase CLI**:
+     ```bash
+     supabase db push
+     ```
+   
+   - **Supabase Dashboard**: 
+     - Go to SQL Editor in your Supabase dashboard
+     - Run the files in order:
+       1. `supabase/migrations/20240101000000_create_todos_table.sql`
+       2. `supabase/migrations/20240101000001_create_rls_policies.sql`
+   
+   **Option B: Manual Setup**
+   
+   If you prefer to set up manually, see the migration files for the complete SQL schema and RLS policies.
+
+5. **Run the development server**:
 ```bash
 npm run dev
 ```
 
-3. **Open your browser**:
+6. **Open your browser**:
 Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Pages
@@ -67,29 +121,39 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 ```
 task-manager-app/
 ├── app/
-│   ├── components/
-│   │   ├── AppBranding.tsx    # Reusable auth branding component
-│   │   └── ConfirmModal.tsx   # Reusable confirmation modal
-│   ├── page.tsx               # Landing page
-│   ├── signin/
-│   │   └── page.tsx           # Sign In page
-│   ├── signup/
-│   │   └── page.tsx           # Sign Up page
-│   ├── home/
-│   │   └── page.tsx           # Task management home
-│   ├── layout.tsx             # Root layout
-│   └── globals.css            # Global styles
-├── types/
-│   ├── signin/
-│   │   └── index.ts           # Sign in types
-│   ├── signup/
-│   │   └── index.ts           # Sign up types
-│   ├── home/
-│   │   └── index.ts           # Home page types
-│   └── components/
-│       └── index.ts           # Component types
-├── public/                    # Static assets
-└── package.json               # Dependencies
+│   ├── v1/
+│   │   ├── components/
+│   │   │   ├── auth/           # Auth-related components
+│   │   │   │   └── PasswordInput.tsx
+│   │   │   ├── home/           # Home page components
+│   │   │   │   ├── Header.tsx
+│   │   │   │   ├── TaskForm.tsx
+│   │   │   │   ├── TaskList.tsx
+│   │   │   │   └── ...
+│   │   │   ├── AuthComponent.tsx      # Route protection
+│   │   │   ├── GuestOnlyComponent.tsx # Guest route protection
+│   │   │   └── ConfirmModal.tsx
+│   │   ├── home/
+│   │   │   ├── page.tsx        # Home page
+│   │   │   └── actions.ts      # Server actions for todos
+│   │   ├── signin/
+│   │   │   ├── page.tsx        # Sign in page
+│   │   │   └── actions.ts      # Sign in server action
+│   │   ├── signup/
+│   │   │   ├── page.tsx        # Sign up page
+│   │   │   └── actions.ts      # Sign up server action
+│   │   ├── hooks/
+│   │   │   └── useAuth.ts      # Auth hook
+│   │   ├── utils/
+│   │   │   └── supabase/
+│   │   │       ├── client.ts   # Browser client
+│   │   │       ├── server.ts   # Server client
+│   │   │       └── auth.ts     # Auth utilities
+│   │   └── types/              # TypeScript types
+│   ├── layout.tsx
+│   └── globals.css
+├── public/                     # Static assets
+└── package.json
 ```
 
 ## Design Features
@@ -118,8 +182,33 @@ All forms use React Hook Form with the following validations:
 
 ### Add Task
 - Title: Required
-- Column: Required
-- Time: Required
+
+## Backend Architecture
+
+### Supabase Integration
+
+This application uses **Supabase** as the backend, providing:
+
+- **Authentication**: Secure user authentication with email/password
+- **Database**: PostgreSQL database hosted on Supabase
+- **Row-Level Security**: Database-level security ensuring users can only access their own data
+- **Server Actions**: Next.js server actions for secure database operations
+
+### Database Schema
+
+The `todos` table structure:
+- `id` (UUID): Primary key
+- `user_id` (UUID): Foreign key to `auth.users`
+- `title` (TEXT): Task title
+- `is_completed` (BOOLEAN): Completion status
+- `created_at` (TIMESTAMPTZ): Creation timestamp
+
+### Security Features
+
+- **Row-Level Security (RLS)**: All database operations are protected by RLS policies
+- **Server-Side Authentication**: User authentication is verified on the server
+- **Protected Routes**: Client-side route protection with automatic redirects
+- **Secure API Calls**: All database operations go through server actions
 
 
 ## License
