@@ -2,6 +2,10 @@
 
 A modern task management application built with Next.js 15, TypeScript, and Tailwind CSS.
 
+## 🚀 Live Demo
+
+**Deployed on Vercel**: [https://task-manager-app-nextjs-pdagd7q2w-nuclei1.vercel.app](https://task-manager-app-nextjs-pdagd7q2w-nuclei1.vercel.app)
+
 ## Features
 
 - **Authentication Pages**: Sign In and Sign Up forms with validation using React Hook Form
