@@ -109,6 +109,152 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 - Full task management interface
 - Add, update, and delete tasks
 
+## User Flow & Getting Started Guide
+
+### For New Users
+
+Welcome! This guide will walk you through using the Task Manager App for the first time.
+
+#### Step 1: Access the Application
+
+1. **Visit the application**: Navigate to the [Live Demo](https://task-manager-app-nextjs-pdagd7q2w-nuclei1.vercel.app) or your local development server
+2. **Landing Page**: You'll see the landing page with options to Sign In or Sign Up
+
+#### Step 2: Create an Account
+
+1. **Click "Sign Up"** or navigate to `/v1/signup`
+2. **Fill in the registration form**:
+   - **Full Name**: Enter your name (minimum 2 characters)
+   - **Email**: Enter a valid email address
+   - **Password**: Create a password (minimum 6 characters)
+   - **Confirm Password**: Re-enter your password to confirm
+3. **Password Visibility**: Click the eye icon to toggle password visibility
+4. **Submit**: Click "Let's Get Started!" to create your account
+5. **Success**: You'll see a success message and be automatically redirected to the home page
+
+> **Note**: If you're already logged in and try to access the signup page, you'll be automatically redirected to the home page.
+
+#### Step 3: Sign In (For Returning Users)
+
+1. **Click "Sign In"** or navigate to `/v1/signin`
+2. **Enter your credentials**:
+   - **Email**: Enter your registered email
+   - **Password**: Enter your password
+   - Use the eye icon to toggle password visibility if needed
+3. **Submit**: Click "Sign In"
+4. **Success**: You'll be redirected to your home page with your tasks
+
+> **Note**: If you're already logged in, accessing the signin page will redirect you to the home page.
+
+#### Step 4: Manage Your Tasks
+
+Once logged in, you'll land on the **Home Page** (`/v1/home`):
+
+1. **View Your Tasks**:
+   - All your tasks are displayed in a list
+   - Completed tasks are shown with a strikethrough
+   - Empty state appears if you have no tasks yet
+
+2. **Add a New Task**:
+   - Click the **"+ Add New Task"** button
+   - Enter the task title in the input field (placeholder: "What needs to be done?")
+   - Click **"Add Task"** to save
+   - The task appears at the top of your list
+
+3. **Mark Task as Complete**:
+   - Click the checkbox next to any task
+   - The task will be marked as complete (strikethrough style)
+   - You'll see a toast notification: "Marked as complete!"
+   - Click again to unmark as incomplete
+
+4. **Delete a Task**:
+   - Click the delete icon (trash) on any task
+   - A confirmation modal will appear
+   - Click **"Delete"** to confirm or **"Cancel"** to abort
+   - The task will be permanently removed
+
+5. **Profile Menu**:
+   - Click your profile avatar (gradient circle) in the top right
+   - View your name and email
+   - Click **"Logout"** to sign out
+
+### Application Flow Diagram
+
+```
+┌─────────────────┐
+│  Landing Page   │
+│      (/)        │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │         │
+    ▼         ▼
+┌────────┐ ┌────────┐
+│ Sign Up│ │Sign In │
+│  Page  │ │  Page  │
+└───┬────┘ └───┬────┘
+    │          │
+    │          │ (if authenticated)
+    │          │ redirects to Home
+    │          │
+    └────┬─────┘
+         │
+         ▼
+    ┌─────────┐
+    │  Home   │
+    │  Page   │◄──┐
+    │ (/home) │   │
+    └────┬────┘   │
+         │        │
+    ┌────┴────┐   │
+    │         │   │
+    ▼         ▼   │
+┌────────┐ ┌────────┐
+│  Add   │ │ Delete │
+│  Task  │ │  Task  │
+└────────┘ └────────┘
+```
+
+### Key Features & Behaviors
+
+#### Route Protection
+
+- **Protected Routes** (`/v1/home`):
+  - Requires authentication
+  - Unauthenticated users are automatically redirected to `/v1/signin`
+  - Shows a loading spinner while checking authentication
+
+- **Guest-Only Routes** (`/v1/signin`, `/v1/signup`, `/v1/auth/error`):
+  - Only accessible when not logged in
+  - Authenticated users are automatically redirected to `/v1/home`
+
+#### Real-Time Updates
+
+- Tasks are fetched from Supabase on page load
+- All operations (add, update, delete) are immediately reflected in the UI
+- Optimistic updates provide instant feedback before server confirmation
+
+#### Error Handling
+
+- Form validation errors appear below input fields
+- Network errors show toast notifications
+- Failed operations can be retried
+
+### Tips for Best Experience
+
+1. **Keep Tasks Organized**: Use clear, descriptive task titles
+2. **Mark Complete**: Check off tasks as you complete them
+3. **Regular Cleanup**: Delete tasks you no longer need
+4. **Stay Logged In**: Your session persists until you log out
+5. **Secure Access**: Always log out when using shared devices
+
+### Troubleshooting
+
+- **Can't sign in?**: Verify your email and password are correct
+- **Tasks not loading?**: Check your internet connection and refresh the page
+- **Redirected unexpectedly?**: This is normal - the app protects routes based on your authentication status
+- **Form errors?**: Check that all required fields are filled correctly
+
 ## Available Scripts
 
 - `npm run dev` - Start development server
