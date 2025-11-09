@@ -23,17 +23,26 @@ function SignInContent() {
 
   const onSubmit = (data: SignInFormData) => {
     startTransition(async () => {
-      const formData = new FormData();
-      formData.append('email', data.email);
-      formData.append('password', data.password);
-      
-      const result = await login(formData);
-      
-      if (result.success && result.data) {
-        toast.success(`Signed in successfully!, Welcome ${result.data.user_metadata?.name || data.email} `);
-        router.push('/v1/home');
-      } else {
-        const errorMessage = result.error || 'An error occurred during sign in';
+      try {
+        const formData = new FormData();
+        formData.append('email', data.email);
+        formData.append('password', data.password);
+        
+        const result = await login(formData);
+        
+        if (result.success && result.data) {
+          toast.success(`Signed in successfully!, Welcome ${result.data.user_metadata?.name || data.email} `);
+          router.push('/v1/home');
+        } else {
+          const errorMessage = result.error || 'An error occurred during sign in. Please try again.';
+          toast.error(errorMessage);
+          setError('root', {
+            message: errorMessage,
+          });
+        }
+      } catch (error: any) {
+        // Handle any unexpected errors (network issues, etc.)
+        const errorMessage = 'An error occurred during sign in. Please check your connection and try again.';
         toast.error(errorMessage);
         setError('root', {
           message: errorMessage,
