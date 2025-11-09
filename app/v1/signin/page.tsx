@@ -36,9 +36,7 @@ function SignInContent() {
         } else {
           const errorMessage = result.error || 'An error occurred during sign in. Please try again.';
           toast.error(errorMessage);
-          setError('root', {
-            message: errorMessage,
-          });
+  
         }
       } catch (error: any) {
         // Handle any unexpected errors (network issues, etc.)
