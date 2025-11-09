@@ -26,16 +26,18 @@ function SignUpContent() {
 
   const onSubmit = (data: SignUpFormData) => {
     startTransition(async () => {
-      try {
-        const formData = new FormData();
-        formData.append('email', data.email);
-        formData.append('password', data.password);
-        formData.append('name', data.name);
-        await signup(formData);
+      const formData = new FormData();
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      formData.append('name', data.name);
+      
+      const result = await signup(formData);
+      
+      if (result.success) {
         toast.success('Account created successfully!, Welcome');
         router.push('/v1/home');
-      } catch (error: any) {
-        const errorMessage = error?.message || 'An error occurred during sign up';
+      } else {
+        const errorMessage = result.error || 'An error occurred during sign up';
         toast.error(errorMessage);
         setError('root', {
           message: errorMessage,

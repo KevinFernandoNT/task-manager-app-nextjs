@@ -28,16 +28,16 @@ function HomeContent() {
   // Fetch todos on mount
   useEffect(() => {
     const fetchTodos = async () => {
-      try {
-        setLoading(true);
-        const todos = await getTodos();
-        setTasks(todos || []);
-      } catch (error: any) {
-        console.error('Error fetching todos:', error);
-        toast.error(error?.message || 'Failed to load tasks');
-      } finally {
-        setLoading(false);
+      setLoading(true);
+      const result = await getTodos();
+      
+      if (result.success && result.data) {
+        setTasks(result.data);
+      } else {
+        toast.error(result.error || 'Failed to load tasks');
       }
+      
+      setLoading(false);
     };
 
     if (user) {
@@ -47,14 +47,14 @@ function HomeContent() {
 
   const onAddTask = (data: TaskFormData) => {
     startTransition(async () => {
-      try {
-        const newTask = await addTodo(data.title);
-        setTasks([newTask, ...tasks]);
+      const result = await addTodo(data.title);
+      
+      if (result.success && result.data) {
+        setTasks([result.data, ...tasks]);
         setShowAddTaskForm(false);
         toast.success('Task added successfully!');
-      } catch (error: any) {
-        console.error('Error adding todo:', error);
-        toast.error(error?.message || 'Failed to add task');
+      } else {
+        toast.error(result.error || 'Failed to add task');
       }
     });
   };
@@ -67,14 +67,14 @@ function HomeContent() {
   const confirmDelete = () => {
     if (taskToDelete !== null) {
       startTransition(async () => {
-        try {
-          await deleteTodo(taskToDelete);
+        const result = await deleteTodo(taskToDelete);
+        
+        if (result.success) {
           setTasks(tasks.filter((task) => task.id !== taskToDelete));
           setTaskToDelete(null);
           toast.success('Task deleted successfully!');
-        } catch (error: any) {
-          console.error('Error deleting todo:', error);
-          toast.error(error?.message || 'Failed to delete task');
+        } else {
+          toast.error(result.error || 'Failed to delete task');
         }
       });
     }
@@ -94,20 +94,20 @@ function HomeContent() {
     );
 
     startTransition(async () => {
-      try {
-        await updateTodo(id, newCompleted);
+      const result = await updateTodo(id, newCompleted);
+      
+      if (result.success) {
         if (newCompleted) {
           toast.success('Marked as complete!');
         }
-      } catch (error: any) {
-        console.error('Error updating todo:', error);
+      } else {
         // Revert on error
         setTasks(
           tasks.map((t) =>
             t.id === id ? { ...t, is_completed: !newCompleted } : t
           )
         );
-        toast.error(error?.message || 'Failed to update task');
+        toast.error(result.error || 'Failed to update task');
       }
     });
   };

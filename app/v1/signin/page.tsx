@@ -23,21 +23,21 @@ function SignInContent() {
 
   const onSubmit = (data: SignInFormData) => {
     startTransition(async () => {
-      try {
-        const formData = new FormData();
-        formData.append('email', data.email);
-        formData.append('password', data.password);
-        const user = await login(formData);
-        toast.success(`Signed in successfully!, Welcome ${user.user_metadata?.name || data.email} `);
+      const formData = new FormData();
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      
+      const result = await login(formData);
+      
+      if (result.success && result.data) {
+        toast.success(`Signed in successfully!, Welcome ${result.data.user_metadata?.name || data.email} `);
         router.push('/v1/home');
-      } catch (error: any) {
-        let errorMessage = error?.message || 'An error occurred during sign in';
-
-        //mutate to a better UX friendly error message 
-        if(errorMessage.includes('Invalid login credentials')) {
-          errorMessage = "Incorrect email or password, Please check your credentials and try again";
-        }
+      } else {
+        const errorMessage = result.error || 'An error occurred during sign in';
         toast.error(errorMessage);
+        setError('root', {
+          message: errorMessage,
+        });
       }
     });
   };
