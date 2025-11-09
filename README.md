@@ -117,16 +117,6 @@ All forms use React Hook Form with the following validations:
 - Column: Required
 - Time: Required
 
-## Future Enhancements
-
-- Backend integration with authentication
-- Database persistence for tasks
-- Real-time collaboration features
-- Drag-and-drop task reordering
-- File attachments
-- Comments and activity log
-- Calendar integration
-- Notifications system
 
 ## License
 
